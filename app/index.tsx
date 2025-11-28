@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Surah, UserSettings } from '../types/quran';
 import { getSurahs, getSurahVerseCount } from '../services/quranApi';
-import { getSettings, saveSettings } from '../services/storage';
+import { getSettings, saveSettings, getProgress, saveProgress, resetProgress, ProgressData } from '../services/storage';
 
 type SelectMode = 'surah' | 'juz';
 
@@ -70,6 +70,7 @@ export default function HomeScreen() {
     startVerse: number;
     endVerse: number;
   } | null>(null);
+  const [progress, setProgress] = useState<ProgressData | null>(null);
   
   const handleVerseInput = (
     value: string,
@@ -88,11 +89,13 @@ export default function HomeScreen() {
   useEffect(() => {
     const init = async () => {
       try {
-        const [surahList, savedSettings] = await Promise.all([
+        const [surahList, savedSettings, savedProgress] = await Promise.all([
           getSurahs(),
           getSettings(),
+          getProgress(),
         ]);
         setSurahs(surahList);
+        setProgress(savedProgress);
         
         const savedSurah = surahList.find(s => s.number === savedSettings.verseRange.surahNumber);
         if (savedSurah) {
@@ -162,6 +165,10 @@ export default function HomeScreen() {
       endVerse: singleAyah ? startVerse : endVerse,
     });
     
+    await resetProgress();
+    const newProgress = await getProgress();
+    setProgress(newProgress);
+    
     setShowVerseModal(false);
     
     const verseCount = singleAyah ? 1 : endVerse - startVerse + 1;
@@ -226,11 +233,43 @@ export default function HomeScreen() {
               ? `Ayah ${currentSelection.startVerse}`
               : `Ayah ${currentSelection.startVerse} - ${currentSelection.endVerse}`}
           </Text>
-          <View style={styles.currentBadge}>
-            <Text style={styles.currentBadgeText}>
-              {currentSelection.endVerse - currentSelection.startVerse + 1} verse{currentSelection.endVerse !== currentSelection.startVerse ? 's' : ''}
-            </Text>
-          </View>
+          
+          {progress && (
+            <View style={styles.progressSection}>
+              <View style={styles.progressBarContainer}>
+                <View 
+                  style={[
+                    styles.progressBar, 
+                    { 
+                      width: `${Math.min(100, (progress.memorizedVerses.length / (currentSelection.endVerse - currentSelection.startVerse + 1)) * 100)}%` 
+                    }
+                  ]} 
+                />
+              </View>
+              <Text style={styles.progressText}>
+                {progress.memorizedVerses.length} / {currentSelection.endVerse - currentSelection.startVerse + 1} memorized
+              </Text>
+              
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{progress.totalViews}</Text>
+                  <Text style={styles.statLabel}>Views</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{progress.streakDays}</Text>
+                  <Text style={styles.statLabel}>Day Streak</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>
+                    {progress.currentVerseIndex + 1}
+                  </Text>
+                  <Text style={styles.statLabel}>Current</Text>
+                </View>
+              </View>
+            </View>
+          )}
         </View>
       ) : (
         <View style={styles.header}>
@@ -483,10 +522,56 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 20,
   },
-  currentBadgeText: {
-    color: '#0d0d0d',
+  progressSection: {
+    width: '100%',
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#2a2a2a',
+  },
+  progressBarContainer: {
+    height: 6,
+    backgroundColor: '#2a2a2a',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#c9a227',
+    borderRadius: 3,
+  },
+  progressText: {
+    color: '#888',
     fontSize: 13,
-    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statItem: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  statValue: {
+    color: '#c9a227',
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  statLabel: {
+    color: '#666',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 4,
+  },
+  statDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: '#2a2a2a',
   },
   title: {
     color: '#c9a227',
