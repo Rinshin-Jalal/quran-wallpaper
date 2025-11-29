@@ -1,7 +1,13 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { ProgressData } from '../services/storage';
-import { ProgressStats } from './ProgressStats';
-import { Colors, Spacing, FontSizes, FontWeights, BorderRadius } from '../constants/theme';
+import { View, Text, StyleSheet } from "react-native";
+import { ProgressData } from "../services/storage";
+import { ProgressStats } from "./ProgressStats";
+import {
+  Colors,
+  Spacing,
+  FontSizes,
+  FontWeights,
+  BorderRadius,
+} from "../constants/theme";
 
 interface CurrentSelectionCardProps {
   surahName: string;
@@ -29,12 +35,12 @@ export function CurrentSelectionCard({
           : `Ayah ${startVerse} - ${endVerse}`}
       </Text>
 
-      {progress && (
+      {/* {progress && (
         <ProgressStats
           progress={progress}
           totalVerses={endVerse - startVerse + 1}
         />
-      )}
+      )} */}
     </View>
   );
 }
@@ -44,7 +50,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: Spacing.xxl,
     paddingHorizontal: Spacing.xxl,
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: Colors.cardBg,
     borderBottomLeftRadius: BorderRadius.xl,
     borderBottomRightRadius: BorderRadius.xl,

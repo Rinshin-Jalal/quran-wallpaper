@@ -1,6 +1,6 @@
-import { Surah, Ayah } from '../types/quran';
+import { Surah, Ayah } from "../types/quran";
 
-const BASE_URL = 'https://api.alquran.cloud/v1';
+const BASE_URL = "https://api.alquran.cloud/v1";
 
 export async function getSurahs(): Promise<Surah[]> {
   const response = await fetch(`${BASE_URL}/surah`);
@@ -12,7 +12,7 @@ export async function getSurahs(): Promise<Surah[]> {
 export async function getAyah(
   surahNumber: number,
   ayahNumber: number,
-  edition: string = 'quran-uthmani'
+  edition: string = "quran-uthmani"
 ): Promise<Ayah> {
   const response = await fetch(
     `${BASE_URL}/ayah/${surahNumber}:${ayahNumber}/${edition}`
@@ -25,11 +25,13 @@ export async function getAyah(
 export async function getAyahWithTranslation(
   surahNumber: number,
   ayahNumber: number,
-  translationEdition: string = 'en.asad'
+  translationEdition: string = "en.asad"
 ): Promise<{ arabic: Ayah; translation: Ayah }> {
   const [arabicRes, translationRes] = await Promise.all([
     fetch(`${BASE_URL}/ayah/${surahNumber}:${ayahNumber}/quran-uthmani`),
-    fetch(`${BASE_URL}/ayah/${surahNumber}:${ayahNumber}/${translationEdition}`),
+    fetch(
+      `${BASE_URL}/ayah/${surahNumber}:${ayahNumber}/${translationEdition}`
+    ),
   ]);
 
   const arabicData = await arabicRes.json();
@@ -49,4 +51,11 @@ export async function getSurahVerseCount(surahNumber: number): Promise<number> {
   const data = await response.json();
   if (data.code !== 200) throw new Error(data.status);
   return data.data.numberOfAyahs;
+}
+
+export async function getSurahAyahs(surahNumber: number): Promise<string[]> {
+  const response = await fetch(`${BASE_URL}/surah/${surahNumber}`);
+  const data = await response.json();
+  if (data.code !== 200) throw new Error(data.status);
+  return data.data.ayahs;
 }

@@ -9,9 +9,9 @@
     "newArchEnabled": true,
     "scheme": "wahy",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1a1a2e"
+      "backgroundColor": "#F4F3ED"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,8 +19,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1a1a2e"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#F4F3ED"
       },
       "package": "com.arakkalabu.wahy"
     },
@@ -29,7 +29,8 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "./modules/quran-wallpaper-service/app.plugin.js"
     ]
   }
 }

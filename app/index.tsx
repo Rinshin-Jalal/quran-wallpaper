@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { Surah, UserSettings } from "../types/quran";
-import { getSurahVerseCount } from "../services/quranApi";
+import { getSurahAyahs } from "../services/quranApi";
 import { getProgress } from "../services/storage";
 import { useQuranApp } from "../hooks/useQuranApp";
 import { SearchBar } from "../components/SearchBar";
@@ -9,6 +9,7 @@ import { SurahList } from "../components/SurahList";
 import { CurrentSelectionCard } from "../components/CurrentSelectionCard";
 import { VerseSelectionModal } from "../components/VerseSelectionModal";
 import { Colors, Spacing, FontSizes, FontWeights } from "../constants/theme";
+import * as WallpaperService from "../modules/quran-wallpaper-service";
 
 export default function HomeScreen() {
   const { surahs, loading, currentSelection, progress } = useQuranApp();
@@ -60,6 +61,26 @@ export default function HomeScreen() {
 
     const newProgress = await getProgress();
     setProgressState(newProgress);
+
+    const ayahs: any = await getSurahAyahs(selectedSurah.number);
+
+    WallpaperService.setSurahData(
+      selectedSurah.number,
+      ayahs,
+      settings.verseRange.startVerse - 1,
+      settings.verseRange.endVerse - 1
+    );
+    WallpaperService.startWallpaperService();
+
+    handleSetWallpaper();
+  };
+
+  const handleSetWallpaper = () => {
+    try {
+      WallpaperService.setLiveWallpaper();
+    } catch (error) {
+      Alert.alert("Error", "Could not open wallpaper picker");
+    }
   };
 
   if (loading) {
