@@ -1,15 +1,16 @@
 export const Colors = {
-  background: '#0d0d0d',
-  cardBg: '#141414',
-  darkBg: '#1a1a1a',
-  surface: '#1f1f1f',
-  primary: '#c9a227',
-  text: '#fff',
-  textSecondary: '#888',
-  textTertiary: '#666',
-  textDisabled: '#555',
-  border: '#2a2a2a',
-  overlay: 'rgba(0,0,0,0.85)',
+  background: "#0d0d0d",
+  cardBg: "#141414",
+  darkBg: "#1a1a1a",
+  surface: "#1f1f1f",
+  primary: "#c9a227",
+  text: "#fff",
+  textSecondary: "#888",
+  textTertiary: "#666",
+  textDisabled: "#555",
+  border: "#2a2a2a",
+  overlay: "rgba(0,0,0,0.85)",
+  error: "#FF6467",
 };
 
 export const Spacing = {
@@ -45,9 +46,9 @@ export const FontSizes = {
 };
 
 export const FontWeights = {
-  light: '300' as const,
-  normal: '400' as const,
-  medium: '500' as const,
-  semibold: '600' as const,
-  bold: '700' as const,
+  light: "300" as const,
+  normal: "400" as const,
+  medium: "500" as const,
+  semibold: "600" as const,
+  bold: "700" as const,
 };

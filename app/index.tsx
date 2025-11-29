@@ -1,30 +1,26 @@
-import { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
-import { Surah, UserSettings } from '../types/quran';
-import { getSurahVerseCount } from '../services/quranApi';
-import { getProgress } from '../services/storage';
-import { useQuranApp } from '../hooks/useQuranApp';
-import { SearchBar } from '../components/SearchBar';
-import { SurahList } from '../components/SurahList';
-import { CurrentSelectionCard } from '../components/CurrentSelectionCard';
-import { VerseSelectionModal } from '../components/VerseSelectionModal';
-import { Colors, Spacing, FontSizes, FontWeights } from '../constants/theme';
+import { useEffect, useState } from "react";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { Surah, UserSettings } from "../types/quran";
+import { getSurahVerseCount } from "../services/quranApi";
+import { getProgress } from "../services/storage";
+import { useQuranApp } from "../hooks/useQuranApp";
+import { SearchBar } from "../components/SearchBar";
+import { SurahList } from "../components/SurahList";
+import { CurrentSelectionCard } from "../components/CurrentSelectionCard";
+import { VerseSelectionModal } from "../components/VerseSelectionModal";
+import { Colors, Spacing, FontSizes, FontWeights } from "../constants/theme";
 
 export default function HomeScreen() {
   const { surahs, loading, currentSelection, progress } = useQuranApp();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
   const [showVerseModal, setShowVerseModal] = useState(false);
   const [maxVerses, setMaxVerses] = useState(7);
   const [startVerse, setStartVerse] = useState(1);
   const [endVerse, setEndVerse] = useState(7);
   const [singleAyah, setSingleAyah] = useState(false);
-  const [currentSelectionState, setCurrentSelectionState] = useState(currentSelection);
+  const [currentSelectionState, setCurrentSelectionState] =
+    useState(currentSelection);
   const [progressState, setProgressState] = useState(progress);
 
   useEffect(() => {
@@ -44,10 +40,10 @@ export default function HomeScreen() {
 
   const handleSurahPress = async (surah: Surah) => {
     setSelectedSurah(surah);
-    const count = await getSurahVerseCount(surah.number);
-    setMaxVerses(count);
+    // const count = await getSurahVerseCount(surah.number);
+    setMaxVerses(surah.numberOfAyahs);
     setStartVerse(1);
-    setEndVerse(Math.min(7, count));
+    setEndVerse(surah.numberOfAyahs);
     setSingleAyah(false);
     setShowVerseModal(true);
   };
@@ -122,14 +118,14 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     backgroundColor: Colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     paddingTop: 70,
     paddingBottom: Spacing.xxl,
     paddingHorizontal: Spacing.xxl,
-    alignItems: 'center',
+    alignItems: "center",
   },
   title: {
     color: Colors.primary,
@@ -141,7 +137,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.base,
     marginTop: Spacing.md,
     letterSpacing: 2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   searchContainer: {
     paddingHorizontal: Spacing.xxl,
