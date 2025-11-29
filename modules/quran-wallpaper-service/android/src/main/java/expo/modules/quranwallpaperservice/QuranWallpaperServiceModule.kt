@@ -27,12 +27,14 @@ class QuranWallpaperServiceModule : Module() {
 
         Events("onVerseChanged")
 
-        Function("setSurahData") { surahId: Int, verses: String ->
+        Function("setSurahData") { surahId: Int, verses: String, start: Int, end: Int ->
             val prefs = getPreferences()
             prefs.edit()
                 .putInt("current_surah_id", surahId)
                 .putString("verses_data", verses)
                 .putInt("current_verse_index", 0)
+                .putInt("start_verse", start)
+                .putInt("end_verse", end)
                 .apply()
 
             sendEvent("onVerseChanged", mapOf("surahId" to surahId, "verseIndex" to 0))

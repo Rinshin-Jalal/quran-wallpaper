@@ -11,7 +11,12 @@ export interface Verse {
 }
 
 declare class QuranWallpaperServiceModule extends NativeModule {
-  setSurahData(surahId: number, verses: string): void;
+  setSurahData(
+    surahId: number,
+    verses: string,
+    startVerse: number,
+    endVerse: number
+  ): void;
   getSurahData(): { surahId: number; versesData: string; currentIndex: number };
   startWallpaperService(): boolean;
 }
@@ -20,8 +25,13 @@ const Module = requireNativeModule<QuranWallpaperServiceModule>(
   "QuranWallpaperService"
 );
 
-export function setSurahData(surahId: number, verses: Verse[]): void {
-  Module.setSurahData(surahId, JSON.stringify(verses));
+export function setSurahData(
+  surahId: number,
+  verses: Verse[],
+  startVerse: number,
+  endVerse: number
+): void {
+  Module.setSurahData(surahId, JSON.stringify(verses), startVerse, endVerse);
 }
 
 export function getSurahData() {
