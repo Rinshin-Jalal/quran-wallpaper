@@ -10,6 +10,15 @@ export interface Verse {
   translation?: string;
 }
 
+export interface WallpaperConfig {
+  backgroundColor: string;
+  arabicTextColor: string;
+  translationTextColor: string;
+  arabicFontSize: number;
+  translationFontSize: number;
+  textPosition: string;
+}
+
 declare class QuranWallpaperServiceModule extends NativeModule {
   setSurahData(
     surahId: number,
@@ -19,6 +28,7 @@ declare class QuranWallpaperServiceModule extends NativeModule {
   ): void;
   getSurahData(): { surahId: number; versesData: string; currentIndex: number };
   startWallpaperService(): boolean;
+  setWallpaperConfig(config: string): void;
 }
 
 const Module = requireNativeModule<QuranWallpaperServiceModule>(
@@ -54,4 +64,8 @@ export function addVerseChangeListener(
 
 export function setLiveWallpaper(): void {
   Module.setLiveWallpaper();
+}
+
+export function setWallpaperConfig(config: WallpaperConfig): void {
+  Module.setWallpaperConfig(JSON.stringify(config));
 }

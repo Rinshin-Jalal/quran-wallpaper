@@ -26,9 +26,21 @@ export interface VerseRange {
   endVerse: number;
 }
 
+export type TextPosition = 'top' | 'center' | 'bottom';
+
+export interface WallpaperSettings {
+  backgroundColor: string;
+  arabicTextColor: string;
+  translationTextColor: string;
+  arabicFontSize: number;
+  translationFontSize: number;
+  textPosition: TextPosition;
+}
+
 export interface UserSettings {
   verseRange: VerseRange;
   showArabic: boolean;
   showTranslation: boolean;
   translationEdition: string;
+  wallpaperSettings: WallpaperSettings;
 }

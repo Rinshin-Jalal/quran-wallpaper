@@ -14,6 +14,7 @@ import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.view.SurfaceHolder
 import org.json.JSONArray
+import org.json.JSONObject
 
 class QuranWallpaperService : WallpaperService() {
     override fun onCreateEngine(): Engine = QuranWallpaperEngine()
@@ -59,14 +60,31 @@ class QuranWallpaperService : WallpaperService() {
             try {
                 canvas = holder.lockCanvas()
                 canvas?.let { c ->
-                    // White background
-                    c.drawColor(Color.WHITE)
-
                     val prefs =
                             applicationContext.getSharedPreferences(
                                     "${applicationContext.packageName}.quran_wallpaper",
                                     Context.MODE_PRIVATE
                             )
+
+                    // Get wallpaper config with BLACK as default
+                    val configJson = prefs.getString("wallpaper_config", null)
+                    val config = if (configJson != null) {
+                        try {
+                            JSONObject(configJson)
+                        } catch (e: Exception) {
+                            null
+                        }
+                    } else null
+
+                    val backgroundColor = config?.optString("backgroundColor", "#000000") ?: "#000000"
+                    val arabicTextColor = config?.optString("arabicTextColor", "#FFFFFF") ?: "#FFFFFF"
+                    val translationTextColor = config?.optString("translationTextColor", "#AAAAAA") ?: "#AAAAAA"
+                    val arabicFontSize = config?.optDouble("arabicFontSize", 60.0)?.toFloat() ?: 60f
+                    val translationFontSize = config?.optDouble("translationFontSize", 36.0)?.toFloat() ?: 36f
+                    val textPosition = config?.optString("textPosition", "bottom") ?: "bottom"
+
+                    // Background color (BLACK by default)
+                    c.drawColor(Color.parseColor(backgroundColor))
 
                     val versesJson = prefs.getString("verses_data", "[]") ?: "[]"
                     val currentIndex = prefs.getInt("current_verse_index", 0)
@@ -96,8 +114,8 @@ class QuranWallpaperService : WallpaperService() {
                             // Paint for Arabic text (right aligned, larger line spacing)
                             val arabicPaintLocal =
                                     TextPaint().apply {
-                                        color = Color.BLACK
-                                        textSize = 60f // Increased text size
+                                        color = Color.parseColor(arabicTextColor)
+                                        textSize = arabicFontSize
                                         isAntiAlias = true
                                         textAlign = Paint.Align.RIGHT
                                     }
@@ -105,8 +123,8 @@ class QuranWallpaperService : WallpaperService() {
                             // Paint for translation (right aligned)
                             val translationPaintLocal =
                                     TextPaint().apply {
-                                        color = Color.DKGRAY
-                                        textSize = 36f // Increased text size
+                                        color = Color.parseColor(translationTextColor)
+                                        textSize = translationFontSize
                                         isAntiAlias = true
                                         textAlign = Paint.Align.RIGHT
                                     }
@@ -114,7 +132,7 @@ class QuranWallpaperService : WallpaperService() {
                             // Width for text (right side padding)
                             val textWidth = c.width * 0.85f
 
-                            // Draw Arabic verse - RIGHT ALIGNED, BOTTOM POSITIONED
+                            // Draw Arabic verse - RIGHT ALIGNED
                             val arabicLayout =
                                     StaticLayout.Builder.obtain(
                                                     arabicText,
@@ -133,12 +151,31 @@ class QuranWallpaperService : WallpaperService() {
                                             .setTextDirection(TextDirectionHeuristics.RTL)
                                             .build()
 
-                            // Position at bottom - calculate total height needed
-                            val totalTextHeight =
-                                    arabicLayout.height + if (translation.isNotEmpty()) 60f else 0f
-                            val startY = c.height - totalTextHeight - 300f // 80dp bottom padding
+                            // Calculate startY based on position setting
+                            val translationHeight = if (translation.isNotEmpty()) {
+                                val translationLayout =
+                                        StaticLayout.Builder.obtain(
+                                                        translation,
+                                                        0,
+                                                        translation.length,
+                                                        translationPaintLocal,
+                                                        textWidth.toInt()
+                                                )
+                                                .setAlignment(Layout.Alignment.ALIGN_OPPOSITE)
+                                                .setLineSpacing(6f, 1.3f)
+                                                .build()
+                                translationLayout.height + 20f
+                            } else 0f
 
-                            // Draw Arabic at bottom-right
+                            val totalTextHeight = arabicLayout.height + translationHeight
+                            
+                            val startY = when (textPosition) {
+                                "top" -> 100f
+                                "center" -> (c.height - totalTextHeight) / 2f
+                                else -> c.height - totalTextHeight - 300f // bottom (default)
+                            }
+
+                            // Draw Arabic text
                             c.save()
                             c.translate(
                                     c.width - 40f, // Right margin
