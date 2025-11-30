@@ -64,6 +64,16 @@ export default function HomeScreen() {
 
     const ayahs: any = await getSurahAyahs(selectedSurah.number);
 
+    // Set wallpaper config first
+    WallpaperService.setWallpaperConfig({
+      backgroundColor: settings.wallpaperSettings.backgroundColor,
+      arabicTextColor: settings.wallpaperSettings.arabicTextColor,
+      translationTextColor: settings.wallpaperSettings.translationTextColor,
+      arabicFontSize: settings.wallpaperSettings.arabicFontSize,
+      translationFontSize: settings.wallpaperSettings.translationFontSize,
+      textPosition: settings.wallpaperSettings.textPosition,
+    });
+
     WallpaperService.setSurahData(
       selectedSurah.number,
       ayahs,

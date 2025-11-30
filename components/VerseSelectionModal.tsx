@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Modal,
@@ -7,11 +7,13 @@ import {
   Text,
   StyleSheet,
   Alert,
+  ScrollView,
 } from "react-native";
-import { Surah, UserSettings } from "../types/quran";
-import { saveSettings, resetProgress } from "../services/storage";
+import { Surah, UserSettings, WallpaperSettings } from "../types/quran";
+import { saveSettings, resetProgress, defaultWallpaperSettings } from "../services/storage";
 import { AyahToggle } from "./AyahToggle";
 import { VerseStepper } from "./VerseStepper";
+import { WallpaperSettingsComponent } from "./WallpaperSettings";
 import {
   Colors,
   Spacing,
@@ -47,6 +49,9 @@ export function VerseSelectionModal({
   onClose,
   onSave,
 }: VerseSelectionModalProps) {
+  const [showWallpaperSettings, setShowWallpaperSettings] = useState(false);
+  const [wallpaperSettings, setWallpaperSettings] = useState<WallpaperSettings>(defaultWallpaperSettings);
+
   // Clamp "from" so it can never be > current "to"
   const handleStartChange = (value: number) => {
     const clamped = Math.min(Math.max(1, value), endVerse);
@@ -74,6 +79,7 @@ export function VerseSelectionModal({
       showArabic: true,
       showTranslation: true,
       translationEdition: "en.asad",
+      wallpaperSettings: wallpaperSettings,
     };
 
     await saveSettings(settings);
@@ -121,161 +127,206 @@ export function VerseSelectionModal({
                 padding: Spacing.xxxl,
                 paddingBottom: 40,
                 width: "100%",
+                maxHeight: "90%",
               }}
             >
-              <View
-                style={{
-                  alignItems: "center",
-                  marginBottom: Spacing.xxxl,
-                }}
-              >
-                <Text
-                  style={{
-                    color: Colors.text,
-                    fontSize: FontSizes.xxxl,
-                    fontWeight: FontWeights.semibold,
-                  }}
-                >
-                  {selectedSurah?.englishName}
-                </Text>
-                <Text
-                  style={{
-                    color: Colors.primary,
-                    fontSize: FontSizes.huge,
-                    marginTop: Spacing.md,
-                  }}
-                >
-                  {selectedSurah?.name}
-                </Text>
-              </View>
-
-              <AyahToggle
-                singleAyah={singleAyah}
-                onToggle={onSingleAyahChange}
-              />
-
-              {singleAyah ? (
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <View
                   style={{
                     alignItems: "center",
-                    marginBottom: Spacing.xxl,
+                    marginBottom: Spacing.xxxl,
                   }}
                 >
-                  <VerseStepper
-                    value={startVerse}
-                    onChange={onStartVerseChange}
-                    min={1}
-                    max={maxVerses}
-                    label="Select Ayah"
-                  />
+                  <Text
+                    style={{
+                      color: Colors.text,
+                      fontSize: FontSizes.xxxl,
+                      fontWeight: FontWeights.semibold,
+                    }}
+                  >
+                    {selectedSurah?.englishName}
+                  </Text>
+                  <Text
+                    style={{
+                      color: Colors.primary,
+                      fontSize: FontSizes.huge,
+                      marginTop: Spacing.md,
+                    }}
+                  >
+                    {selectedSurah?.name}
+                  </Text>
                 </View>
-              ) : (
+
+                <AyahToggle
+                  singleAyah={singleAyah}
+                  onToggle={onSingleAyahChange}
+                />
+
+                {singleAyah ? (
+                  <View
+                    style={{
+                      alignItems: "center",
+                      marginBottom: Spacing.xxl,
+                    }}
+                  >
+                    <VerseStepper
+                      value={startVerse}
+                      onChange={onStartVerseChange}
+                      min={1}
+                      max={maxVerses}
+                      label="Select Ayah"
+                    />
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-around",
+                      marginBottom: Spacing.xxl,
+                    }}
+                  >
+                    <View style={{ alignItems: "center" }}>
+                      <VerseStepper
+                        value={startVerse}
+                        onChange={handleStartChange}
+                        min={1}
+                        max={endVerse}
+                        label="From"
+                      />
+                    </View>
+
+                    <View style={{ alignItems: "center" }}>
+                      <VerseStepper
+                        value={endVerse}
+                        onChange={handleEndChange}
+                        min={startVerse}
+                        max={maxVerses}
+                        label="To"
+                      />
+                    </View>
+                  </View>
+                )}
+
+                <View
+                  style={{
+                    backgroundColor: Colors.background,
+                    borderRadius: BorderRadius.sm,
+                    padding: Spacing.lg,
+                    alignItems: "center",
+                    marginBottom: Spacing.xl,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: isInvalidRange ? Colors.error : Colors.primary,
+                      fontSize: FontSizes.xl,
+                      fontWeight: FontWeights.semibold,
+                    }}
+                  >
+                    {singleAyah
+                      ? `Ayah ${startVerse}`
+                      : endVerse >= startVerse
+                      ? `${
+                          endVerse - startVerse + 1
+                        } verses (${startVerse}-${endVerse})`
+                      : "Invalid range"}
+                  </Text>
+                </View>
+
+                {/* Wallpaper Settings Toggle */}
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: Colors.surface,
+                    borderRadius: BorderRadius.sm,
+                    padding: Spacing.lg,
+                    marginBottom: Spacing.xl,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                  onPress={() => setShowWallpaperSettings(!showWallpaperSettings)}
+                >
+                  <Text
+                    style={{
+                      color: Colors.text,
+                      fontSize: FontSizes.md,
+                      fontWeight: FontWeights.medium,
+                    }}
+                  >
+                    Wallpaper Settings
+                  </Text>
+                  <Text
+                    style={{
+                      color: Colors.primary,
+                      fontSize: FontSizes.lg,
+                    }}
+                  >
+                    {showWallpaperSettings ? "▲" : "▼"}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Wallpaper Settings Panel */}
+                {showWallpaperSettings && (
+                  <View style={{ marginBottom: Spacing.xl }}>
+                    <WallpaperSettingsComponent
+                      settings={wallpaperSettings}
+                      onSettingsChange={setWallpaperSettings}
+                    />
+                  </View>
+                )}
+
                 <View
                   style={{
                     flexDirection: "row",
-                    justifyContent: "space-around",
-                    marginBottom: Spacing.xxl,
+                    columnGap: Spacing.md,
                   }}
                 >
-                  <View style={{ alignItems: "center" }}>
-                    <VerseStepper
-                      value={startVerse}
-                      onChange={handleStartChange}
-                      min={1}
-                      max={endVerse}
-                      label="From"
-                    />
-                  </View>
-
-                  <View style={{ alignItems: "center" }}>
-                    <VerseStepper
-                      value={endVerse}
-                      onChange={handleEndChange}
-                      min={startVerse}
-                      max={maxVerses}
-                      label="To"
-                    />
-                  </View>
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      backgroundColor: Colors.surface,
+                      paddingVertical: Spacing.lg,
+                      borderRadius: BorderRadius.md,
+                      alignItems: "center",
+                    }}
+                    onPress={onClose}
+                  >
+                    <Text
+                      style={{
+                        color: Colors.textSecondary,
+                        fontSize: FontSizes.lg,
+                        fontWeight: FontWeights.semibold,
+                      }}
+                    >
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      backgroundColor: isInvalidRange
+                        ? Colors.surface
+                        : Colors.primary,
+                      opacity: isInvalidRange ? 0.5 : 1,
+                      paddingVertical: Spacing.lg,
+                      borderRadius: BorderRadius.md,
+                      alignItems: "center",
+                    }}
+                    onPress={handleSave}
+                    disabled={isInvalidRange}
+                  >
+                    <Text
+                      style={{
+                        color: Colors.background,
+                        fontSize: FontSizes.lg,
+                        fontWeight: FontWeights.semibold,
+                      }}
+                    >
+                      Save
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-
-              <View
-                style={{
-                  backgroundColor: Colors.background,
-                  borderRadius: BorderRadius.sm,
-                  padding: Spacing.lg,
-                  alignItems: "center",
-                  marginBottom: Spacing.xxxl,
-                }}
-              >
-                <Text
-                  style={{
-                    color: isInvalidRange ? Colors.error : Colors.primary,
-                    fontSize: FontSizes.xl,
-                    fontWeight: FontWeights.semibold,
-                  }}
-                >
-                  {singleAyah
-                    ? `Ayah ${startVerse}`
-                    : endVerse >= startVerse
-                    ? `${
-                        endVerse - startVerse + 1
-                      } verses (${startVerse}-${endVerse})`
-                    : "Invalid range"}
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  columnGap: Spacing.md,
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    backgroundColor: Colors.surface,
-                    paddingVertical: Spacing.lg,
-                    borderRadius: BorderRadius.md,
-                    alignItems: "center",
-                  }}
-                  onPress={onClose}
-                >
-                  <Text
-                    style={{
-                      color: Colors.textSecondary,
-                      fontSize: FontSizes.lg,
-                      fontWeight: FontWeights.semibold,
-                    }}
-                  >
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    backgroundColor: isInvalidRange
-                      ? Colors.surface
-                      : Colors.primary,
-                    opacity: isInvalidRange ? 0.5 : 1,
-                    paddingVertical: Spacing.lg,
-                    borderRadius: BorderRadius.md,
-                    alignItems: "center",
-                  }}
-                  onPress={handleSave}
-                  disabled={isInvalidRange}
-                >
-                  <Text
-                    style={{
-                      color: Colors.background,
-                      fontSize: FontSizes.lg,
-                      fontWeight: FontWeights.semibold,
-                    }}
-                  >
-                    Save
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              </ScrollView>
             </View>
           </TouchableWithoutFeedback>
         </View>

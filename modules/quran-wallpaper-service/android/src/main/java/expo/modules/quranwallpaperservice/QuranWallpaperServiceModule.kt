@@ -54,6 +54,13 @@ class QuranWallpaperServiceModule : Module() {
             true
         }
 
+        Function("setWallpaperConfig") { configJson: String ->
+            val prefs = getPreferences()
+            prefs.edit()
+                .putString("wallpaper_config", configJson)
+                .apply()
+        }
+
         Function("setLiveWallpaper") {
             val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
                 putExtra(

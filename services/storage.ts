@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { VerseRange, UserSettings } from '../types/quran';
+import { VerseRange, UserSettings, WallpaperSettings } from '../types/quran';
 
 const SETTINGS_KEY = 'user_settings';
 const CURRENT_VERSE_KEY = 'current_verse_index';
@@ -15,6 +15,15 @@ export interface ProgressData {
   startedDate: string;
 }
 
+export const defaultWallpaperSettings: WallpaperSettings = {
+  backgroundColor: '#000000',
+  arabicTextColor: '#FFFFFF',
+  translationTextColor: '#AAAAAA',
+  arabicFontSize: 60,
+  translationFontSize: 36,
+  textPosition: 'bottom',
+};
+
 const defaultSettings: UserSettings = {
   verseRange: {
     surahNumber: 1,
@@ -24,6 +33,7 @@ const defaultSettings: UserSettings = {
   showArabic: true,
   showTranslation: true,
   translationEdition: 'en.asad',
+  wallpaperSettings: defaultWallpaperSettings,
 };
 
 const defaultProgress: ProgressData = {
