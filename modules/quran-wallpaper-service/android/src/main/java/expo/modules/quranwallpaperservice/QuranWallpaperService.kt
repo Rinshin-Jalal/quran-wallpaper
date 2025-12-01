@@ -22,7 +22,7 @@ class QuranWallpaperService : WallpaperService() {
         private lateinit var receiver: ScreenStateReceiver
         private val arabicPaint =
                 TextPaint().apply {
-                    color = Color.WHITE
+                    color = Color.BLACK
                     textSize = 48f
                     isAntiAlias = true
                     textAlign = Paint.Align.RIGHT
@@ -30,7 +30,7 @@ class QuranWallpaperService : WallpaperService() {
 
         private val translationPaint =
                 TextPaint().apply {
-                    color = Color.WHITE
+                    color = Color.BLACK
                     textSize = 32f
                     isAntiAlias = true
                 }
@@ -60,7 +60,7 @@ class QuranWallpaperService : WallpaperService() {
                 canvas = holder.lockCanvas()
                 canvas?.let { c ->
                     // White background
-                    c.drawColor(Color.WHITE)
+                    c.drawColor(Color.BLACK)
 
                     val prefs =
                             applicationContext.getSharedPreferences(
@@ -96,7 +96,7 @@ class QuranWallpaperService : WallpaperService() {
                             // Paint for Arabic text (right aligned, larger line spacing)
                             val arabicPaintLocal =
                                     TextPaint().apply {
-                                        color = Color.BLACK
+                                        color = Color.WHITE
                                         textSize = 60f // Increased text size
                                         isAntiAlias = true
                                         textAlign = Paint.Align.RIGHT
